@@ -57,6 +57,7 @@ public class Ventana extends JFrame {
     private JButton btNuevoCliente;
     private JButton btNuevaMoto;
     private JButton btNuevoVendedor;
+    private JTextField tfBuscar;
 
     public SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -183,6 +184,18 @@ public class Ventana extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
                 cargarPestanaActual();
+            }
+        });
+
+        tfBuscar.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+                try {
+                    buscar();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
     }
@@ -385,6 +398,23 @@ public class Ventana extends JFrame {
                 nuevoVendedor = true;
                 break;
         }
+    }
+
+    private void buscar() throws SQLException {
+        modeloTablaDatosCliente.getDataVector().removeAllElements();
+        String consulta = null;
+        PreparedStatement sentencia = null;
+        ResultSet resultado = null;
+
+        consulta = "SELECT * FROM "+JTablaDatosCliente.TABLA+" WHERE "+JTablaDatosCliente.NOMBRE+ " LIKE " + "'%" + tfBuscar.getText() + "%'";
+        sentencia = conexion.prepareStatement(consulta);
+        resultado = sentencia.executeQuery();
+
+        while (resultado.next()){
+            Object[] fila= new Object[]{resultado.getString(2),String.valueOf(resultado.getInt(3))};
+            modeloTablaDatosCliente.addRow(fila);
+        }
+        sentencia.close();
     }
 
     private void guardar(){
